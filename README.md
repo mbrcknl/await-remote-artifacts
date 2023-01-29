@@ -7,7 +7,7 @@
 
 A GitHub action to wait for named artifacts to become available in
 another workflow, and to optionally download them in the current
-workflow. Downloaded artifacts are saved as zip files in the nominated
+workflow. Downloaded artifacts are unpacked into the nominated
 directory.
 
 This can be useful when one workflow issues a `repository_dispatch`
@@ -38,9 +38,9 @@ jobs:
     steps:
       - name: Create some files
         run: |
-          mkdir artifact-1 artifact-2
-          echo hello > artifact-1/file-1
-          echo hello > artifact-2/file-2
+          mkdir -p artifact-1/dir-1 artifact-2/dir-2
+          echo hello > artifact-1/dir-1/file-1
+          echo hello > artifact-2/dir-2/file-2
       - name: Upload artifact-1
         uses: actions/upload-artifact@v3
         with:
@@ -88,19 +88,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: mbrcknl/await-remote-artifacts@v1
+        uses: mbrcknl/await-remote-artifacts@v2
         with:
           repo: ${{ github.repository }}
           run-id: ${{ github.event.client_payload.run_id }}
           artifact-names: artifact-1 artifact-2
           token: ${{ secrets.GITHUB_TOKEN }}
-          download-dir: artifact-zips
-      - name: Unpack and list downloaded artifacts
+          download-dir: artifacts
+      - name: List downloaded artifacts
         run: |
-          # Unpack and list downloaded artifacts
-          mkdir artifacts
-          unzip -d artifacts/artifact-1 artifact-zips/artifact-1.zip
-          unzip -d artifacts/artifact-2 artifact-zips/artifact-2.zip
+          # List downloaded artifacts
           find artifacts -type f
 ```
 
@@ -108,8 +105,8 @@ Notice that artifacts are downloaded as zip files. Once unpacked, the
 `find` command in the last step produces the following output:
 
 ```
-artifacts/artifact-1/file-1
-artifacts/artifact-2/file-2
+artifacts/artifact-1/dir-1/file-1
+artifacts/artifact-2/dir-2/file-2
 ```
 
 This action can also be used to download artifacts when the first and

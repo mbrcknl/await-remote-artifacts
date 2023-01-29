@@ -41,8 +41,8 @@ inputs:
     required: false
     description: |
       An optional directory name. If provided, artifacts will be
-      downloaded to this directory, as zip files named after the
-      artifacts.
+      downloaded to this directory. Each artifact will be unpacked
+      into a subdirectory named after the artifact.
 
 outputs:
   artifact-ids:
